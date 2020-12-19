@@ -97,7 +97,7 @@ def getImageSaved(urlLinked, fileIs, folder):
     actualfile=fileIs+urlLinked[-4:]
     urllib.request.urlretrieve(urlLinked, filename=fileIs+urlLinked[-4:]) #create the temporary image file in directory
 
-    path = "D:/PhotoSaver/" + folder
+    path = "D:/" + folder
 
     if not(os.path.exists(path)): #check if the wanted folder exists or not
         try:
