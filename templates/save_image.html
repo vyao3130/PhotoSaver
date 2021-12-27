@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<body>
+    <h1> Save image here</h1>
+
+    {% for image_element in image_elem_list %}
+        <img src= {{image_element}}>
+        <form action="." method="POST">
+            <input type="text" name="tags">
+            <input type="submit" value="Submit tags and save image?">
+    {%endfor %}
+
+    <h1>Done?</h1>
+    <form action="." method="POST">
+        <input type="button" name="Finished">
+    </form>
+
+</body>
+
+
+
+</html>

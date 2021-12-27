@@ -36,21 +36,22 @@ def getImages(post_id):
     html_doc=client.posts('star-nomads.tumblr.com', id=post_id) 
     
     try:
-        print(html_doc["posts"][0]["caption"])
-        print(html_doc["posts"][0]["summary"])
+        # print(html_doc["posts"][0]["caption"])
+        # print(html_doc["posts"][0]["summary"])
         
         photo_list=html_doc["posts"][0]["photos"]
         for val in photo_list:
-            print(val["original_size"]["url"])
-            print(val["caption"])
+            # print(val["original_size"]["url"])
+            # print(val["caption"])
+            return val["original_size"]["url"]
         
 
-    except: #post doesn't have images in correct format
+    except: #post doesn't have images in correct post format
         print("No caption") #this needs to be handled later via 
 
-    post_source=[]
-    post_captions=[]
-    post_photos=[]
+    # post_source=[]
+    # post_captions=[]
+    # post_photos=[]
 
     ## The following function takes in the text and prints it into a temporary text file. Then all the captions are placed into an array,
     ## and the corresponding original photos' urls are placed into another array (The very first element of the captions array is the caption of the post)
@@ -101,6 +102,6 @@ def getImages(post_id):
 #     with open("temp.txt","w") as f:
 #         f.write(test)
 
-getTumblrPostIds("star-nomads.tumblr.com")
-# checkJSON()
-getImages(637860088164564992)
+# getTumblrPostIds("star-nomads.tumblr.com")
+# # checkJSON()
+# getImages(637860088164564992)

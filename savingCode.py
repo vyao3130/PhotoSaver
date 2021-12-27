@@ -129,6 +129,7 @@ def writeDatabase(image_path, caption, input_tags, imageURL):
     f= open("imageDatabase.txt","a+")
     f.write("[" + "Image path: " + image_path + ", Caption: " + caption + ", tags: " + input_tags + ", Image URL: " + imageURL + "]" + "\n")
     f.close
+    # return something to display to the user to confirm what they want
 
 def getImageSource():
     """Actual implementation from running this file:"""
