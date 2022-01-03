@@ -3,8 +3,8 @@
 <body>
     <h1> Save image here</h1>
 
-    {% for image_element in image_elem_list %}
-        <img src= {{image_element}}>
+    {% for image_url in image_url_list %}
+        <img src= {{image_url}}>
         <form action="." method="POST">
             <input type="text" name="tags">
             <input type="submit" value="Submit tags and save image?">

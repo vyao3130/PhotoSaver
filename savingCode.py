@@ -91,29 +91,24 @@ import requests
 #     )
     
 
-def getImageSaved(urlLinked, fileIs, folder):
-    """Takes the urlLink (with .png or .jpg at the end) and saves it along with the file name."""
+def save_image_from_direct_url(urlLinked, path, file_name):
+    """Takes the urlLink (with .png or .jpg at the end) and saves it along
+     with the file name.   
+        Parameters:
+            urlLinked (string): Url that contains only the image.
+            path (string): Path to save the image to.
+            file_name (string): Name of file without extension
+        Returns:
+            None
+     
+     """
 
-    actualfile=fileIs+urlLinked[-4:]
-    urllib.request.urlretrieve(urlLinked, filename=fileIs+urlLinked[-4:]) #create the temporary image file in directory
+    image_file_path=path+file_name+urlLinked[-4:]
 
-    path = "D:/" + folder
-
-    if not(os.path.exists(path)): #check if the wanted folder exists or not
-        try:
-            os.mkdir(path)
-        except OSError:
-            print("Creation of the directory %s failed" % path)
-        else:
-            print("Successfully created the directory %s " % path)
-    else:
-        print("The folder " + folder + " exists already.")
-    
-    os.rename("D:/PhotoSaver/" + actualfile, path + "/" + actualfile) #Move temporary image file in current directory to permanent place stated
-    print("Saved Successfully")
+    urllib.request.urlretrieve(urlLinked, image_file_path) #create the temporary image file in directory
 
 
-def writeDatabase(image_path, caption, input_tags, imageURL):
+def write_to_database(image_path, caption, input_tags, imageURL):
     """
     Take the string input and append it into the tagsListAllImages textfile in the format where [image_location, image_caption, tag1,tag2] 
     where [tag1,tag2] is a post and [tag1, tag2] is another post.
@@ -124,12 +119,49 @@ def writeDatabase(image_path, caption, input_tags, imageURL):
             imageUrl -- url of image
             inputtags -- input tags, currently formatted as a String
             the tags list will then be printed into a text file to be saved and viewed for later.  
+        Returns:
+            None    
     """
 
     f= open("imageDatabase.txt","a+")
     f.write("[" + "Image path: " + image_path + ", Caption: " + caption + ", tags: " + input_tags + ", Image URL: " + imageURL + "]" + "\n")
     f.close
     # return something to display to the user to confirm what they want
+
+def get_images_direct(tumblr_url):
+    """
+    Get direct links to tumblr images. Takes in the url of the tumblr post containing the image,
+    then returns a list of links containing the largest images in the post only.
+
+    Parameters:
+        tumblr_url (string): Url to tumblr image post
+    
+    Returns:
+        direct_image_urls(List[string]): List of direct links to the images from the tumblr image post
+        OR 
+        Empty List: No images were found
+    """
+    
+    direct_image_urls = []
+    # Send a GET request (I want "this" page) to the URL the user provided, 
+    # r is created as an object (which is a Python object)
+    request_object = requests.get(url)
+
+    raw_data = request_object.text
+    # We're feeding "data" to BeautifulSoup with lxml as a parser
+    html_soup = BeautifulSoup(data, 'lxml')
+
+    for link in soup.find_all("img"):
+        image_link = link.get("src") #this finds the image photoset
+        if re.search("78.media.tumblr.com/", image_link) or re.search("64.media.tumblr.com/", image_link):
+            # cut out all images that aren't above a certain size
+            # because everyone's themes are different 
+
+            # then cut out possible similar images retrieved because of the various sizes
+            # depending on the theme of course
+
+
+    return direct_image_urls
 
 def getImageSource():
     """Actual implementation from running this file:"""
@@ -198,7 +230,7 @@ def getImageSource():
                     pass
                 
                 fileNumber+=1
-                getImageSaved(image, filename + str(fileNumber), foldername)
+                e(image, filename + str(fileNumber), foldername)
                 pathImg="D:/PhotoSaver/"+foldername+filename+image[-4:]
                 writeDatabase(pathImg, image_caption, tags, input_url)
             elif (wantImage == "quit"):
@@ -209,5 +241,3 @@ def getImageSource():
     
     # #tags=input("Enter the tags. Commas seperate tags: ") #Okay this has to be in there for sorting. Print each tag that applies I guess.
 
-
-getImageSource()
