@@ -7,7 +7,15 @@ import re
 import requests
 # BeautifulSoup is for parsing html as a tree
 
+def createClient():
+    client = pytumblr.TumblrRestClient(
+        '<consumer_key>',
+        '<consumer_secret>',
+        '<oauth_token>',
+        '<oauth_secret>',
+    )
 
+    client.info() # Grabs the current user information
 
 # # Create a function that will scrape a tumblr account for images and download
 # # all of them into a folder
@@ -163,7 +171,7 @@ def get_images_direct(tumblr_url):
 
     return direct_image_urls
 
-def getImageSource():
+def main():
     """Actual implementation from running this file:"""
 
     # Print Welcome message, request user input: TUMBLR URL
@@ -177,7 +185,8 @@ def getImageSource():
 
     foundCaption = False
     url = input_url
-    # Send a "get" request (I want "this" page) to the URL the user provided, 
+    # Send a "get" request (I want "this" page) to the URL the user provided
+
     # r is created as an object (which is a Python object)
     r = requests.get(url)
     # Format the provided URL into text
@@ -185,7 +194,7 @@ def getImageSource():
     # We're feeding "data" to BeautifulSoup with lxml as a parser
     soup = BeautifulSoup(data, 'lxml')
     # Give the title of the Tumblr site as name for the image folder
-    title = soup.title.text
+    tumblrName = soup.title.text
     tags = "no Tags"
     foldername=input("Enter anticipated folder name: ")
     filename=input("Enter the name of all the files: ")

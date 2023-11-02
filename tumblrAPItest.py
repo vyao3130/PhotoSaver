@@ -12,7 +12,7 @@ client = pytumblr.TumblrRestClient('MuGUwzyl2L0zahpFu7WJVNgeTFmypWG1AsrIB0GmxEj1
     ## tumblr get posts with photo as the type filter, which then will display total posts with photos. 
     ## when taking posts via the Tumblr API 
     ## By the way, go by offsets of 20
-    ## Also, check if the post can be viewed in legacy. Posts that cannot be viewed should be handled by the other code.
+    ## Also, check if the post can be viewed in legacy. Posts that cannot be viewed should be handled by the other code.a
 def getTumblrPostIds(blogname):
     ##
     ##
