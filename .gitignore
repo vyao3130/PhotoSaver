@@ -1,5 +1,11 @@
 # Me being a dumbass and keeping certain directories
 
+# other stuff
+pyvenv.cfg
+posts/
+images_star_nomads/
+include/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
