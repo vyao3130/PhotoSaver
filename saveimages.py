@@ -10,6 +10,15 @@ import os
 import json
 import requests
 
+def write_json_file(file_name : str, file_object):
+    """
+    Write to json file
+    """
+    json_file_object = json.dumps(file_object)
+    with open(file_name, "w") as f:
+        f.write(json_file_object)
+
+
 def scroll_down(driver):
     """A method for scrolling the page."""
 
@@ -22,7 +31,7 @@ def scroll_down(driver):
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
 
         # Wait to load the page.
-        time.sleep(2)
+        time.sleep(5)
 
         # Calculate new scroll height and compare with last scroll height.
         new_height = driver.execute_script("return document.body.scrollHeight")
@@ -63,17 +72,17 @@ def parse_blogarchive_html(file_name: str) -> list:
         print(post_dictionary)
         return post_dictionary
 
-def get_archive_html(link):
+def get_archive_html(link: str):
     """
-    Gets the entire html source code of a dynamic webpage and saves it to an html file.
-    todo: put link somewhere and name html file after link in some way
+    Gets the entire html source code of a tumblr blog's archive and saves it to an html file.
+    
     """
     # link = "https://star-nomads.tumblr.com/archive"
     driver = webdriver.Chrome()
     driver.get(link)
     scroll_down(driver)
     bigText_archive = driver.page_source
-    print(bigText_archive)
+
     if "archive" in link:
         html_link_name = link.split(".")
         html_link_name2 = html_link_name[0][8:]
@@ -91,74 +100,61 @@ def get_post_html(link: str):
         """
         driver = webdriver.Chrome()
         driver.get(link)
-        # time.sleep(4)
+        scroll_down(driver)
+        time.sleep(1) # sometimes the webdriver is still too fast lol
         WebDriverWait(driver, 20).until(EC.visibility_of_element_located((By.XPATH, "/html/body/div[3]/div/div[2]/div/div[2]/iframe")))
         iframe = driver.find_element(By.XPATH, "/html/body/div[3]/div/div[2]/div/div[2]/iframe")
         driver.switch_to.frame(iframe)
-        element1 = driver.find_element(By.CLASS_NAME, 'u2tXn')
-        # print("JDKSFJDSK")
-        # print(element1.get_attribute('innerHTML'))
-        with open(os.path.join('posts', ), 'w') as f:
+        element1 = driver.find_element(By.CLASS_NAME, 'xN3lM')
+        # check if post body there
+        if not element1:
+            return None
+        #make post name
+        html_link_name = link.split("/")
+        for split_link in html_link_name:
+            if split_link.isnumeric():
+                html_link_name2 = split_link
+                break
+        # save post html
+        with open(os.path.join('posts', html_link_name2), 'w', encoding='utf-8') as f:
             f.write(element1.get_attribute('innerHTML'))
-        # print(ffff)
-        timeout = 10
-        # print(driver.page_source)
+        return html_link_name2
         
         
-        # try:
-        #     element = WebDriverWait(driver, timeout).until(EC.visibility_of_element_located((By.CLASS_NAME, 'Ty83o adsbygoogle Qrht9')))
-        #     bigText_archive = driver.page_source
-        #     print(bigText_archive)
-        # #Page ready
-        # except TimeoutException:
-        #     print("sdlkf")
-        #     exit()
-        # #Timeout
-        
-        # html_link_name = link.split("/")
-        # for split_link in html_link_name:
-        #     if split_link.isnumeric():
-        #         html_link_name2 = split_link
-        #         break
-        # # save post htmls in a different folder?
-        # save_bigText(bigText_archive, file_name=os.path.join('posts', html_link_name2))
-        # return html_link_name2
 
-def process_link(link):
+def process_link(link: str):
     """
     Processes the link to a tumblr post- saves the image link, source, and original post link into a dictionary.
     Param: link (str)
     Return: post_dict (dict{"img_link":str, "source":str, "post_link":str})
     """
-    post_html_file = get_archive_html(link)
+    post_html_file = get_post_html(link+"/embed")
+    if not post_html_file:
+        print("The link {link} was not properly processed.")
+        return None
     with open(os.path.join("posts", post_html_file), 'r', encoding='utf-8') as f:
         soup_html = BeautifulSoup(f, "html.parser")
         img_list = []
-        post_img_list = soup_html.find_all(attrs={"class":"CQmeg"})
-        print(post_img_list)
-        # if post_img_list:
-        #     for img in post_img_list:
-        #         ac_img_link = str(img).split("data-big-photo=")[1]
-        #         # print(ac_img_link)
-        #         ac_img_link1 = ac_img_link.split(" ")[0]
-        #         img_list.append(ac_img_link1)
+        post_img_list = soup_html.find_all(attrs={"class":"RoN4R tPU70 xhGbM"})
+        post_img_list.extend(soup_html.find_all(attrs={"class":"RoN4R xhGbM"})) # for some reason the embed also has this even though it's the same??
+        print(f"list of images: {post_img_list}")
+        # no images found in a different way
+        if not post_img_list:
+            print("No images were found for link {link}")
+            return None
         
-        #     return {"img_link": img_list, "post_link":link}
-        # else:
-        #     post_img_list = soup_html.find_all(attrs={"class":"photo-slideshow processed"})
-        #     print("FKDSJFk")
-
-# def process_embed_link(link: str):
-#     """
-#         Process an post's image link by souping its embed link.
-#         The link itself shouldn't have the embed at the end of it. 
-#     """
-#     post_html_file = get_archive_html(link+"/embed")
-#     with open(os.path.join("posts", post_html_file), 'r', encoding='utf-8') as f:
-#         soup_html = BeautifulSoup(f, "html.parser")
-#         img_list = []
-#         post_img_list = soup_html.find_all(attrs={"class":"CQmeg"})
-#         print(post_img_list)
+        for img in post_img_list:
+            ac_img_link = str(img).split(" ")[-2]
+            print(ac_img_link)
+            # ac_img_link1 = ac_img_link.split(" ")[0]
+            img_list.append(ac_img_link)
+        
+        # no images found
+        if not img_list:
+            print("No images were found for link {link}")
+            return None
+    
+        return {"img_link": img_list, "post_link":link}
 
 def save_image(link, file_name, folder_name):
     """
@@ -172,39 +168,48 @@ def save_image(link, file_name, folder_name):
     image_type = link[-4:] # should be .png or .jpg
     if not (image_type == ".jpg" or image_type == ".png"):
         print(f"Incorrect image type of {image_type} from link {link}.")
-        return False
+        return None
     with open(os.path.join(folder_name, file_name+image_type), 'wb') as handler:
         handler.write(img_data)
         print(f"Image sucessfully saved at {folder_name}/{file_name}{image_type}")
 
     
 def main():
-    # blog_link = "https://star-nomads.tumblr.com/"
-    # get_archive_html(blog_link)
+    # blog_link = "https://star-nomads.tumblr.com/archive"
+    # saved_file = get_archive_html(blog_link)
 
-    # post_links = parse_blogarchive_html("bigText.html")
-    # # print(post_links)
-    # # print(len(post_links))
-    # # save post_links
-    # post_links_json = json.dumps(post_links)
-    # with open("post_links.json", "w") as f:
-    #     f.write(post_links_json)
+    post_links = parse_blogarchive_html(r'C:\Users\Vivian\Documents\PhotoSaver\star-nomads')
+    # save post_links
+    write_json_file("post_links.json", post_links)
 
-    # with open("post_links.json", "r") as f:
-    #     post_links = json.load(f)
+    with open("post_links.json", "r") as f:
+        post_links = json.load(f)
 
-    # post_dicts = []
-    # for post in post_links:
-    #     print(f"working on {post}")
-    #     post_info = process_link(post)
-    #     print(f"got this {post_info}")
-    #     post_dicts.append(post_info)
+    post_dicts = []
+    not_working_posts=[]
+
+    for post in post_links:
+        print(f"working on {post}")
+        post_info = process_link(post)
+        if not post_info:
+            print(f"The post {post} was not processed properly.")
+            not_working_posts.append(post)
+        else:
+            print(f"Got this {post_info}")
+            post_dicts.append(post_info)
     
-    # json_posts = json.dumps(post_dicts, indent=4)
-    # save_bigText("postLinks.txt", json_posts)
+    write_json_file("not_working_posts.json", not_working_posts)
+    write_json_file("json_files.json", post_dicts)
+
+    with open("json_files.json",'r') as f:
+        post_dictionary = json.load(f)
+    
+    for post_dict in post_dictionary:
+        image_links = post_dict.get("img_link")
+        
 
     # print(process_link("https://star-nomads.tumblr.com/post/732880681226715136"))
-    get_post_html("https://star-nomads.tumblr.com/post/732880681226715136/embed")
+    # print(process_link('https://star-nomads.tumblr.com/post/726373271092789248/when-two-musicians-sing-into-the-same-microphone'))
     # bigText_archive = image_box.get_attribute("innerHTML")
     # save_image("https://64.media.tumblr.com/8777b29b0dde41a4dea5b9c70266759e/1ca9390b25a83b5b-89/s1280x1920/64bd60bcb80ca76cf7058a641bab865aa7c75aa7.jpg", "blarrgh", "images_star_nomads")
 
