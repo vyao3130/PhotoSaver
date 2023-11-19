@@ -173,6 +173,25 @@ def save_image(link, file_name, folder_name):
         handler.write(img_data)
         print(f"Image sucessfully saved at {folder_name}/{file_name}{image_type}")
 
+def save_images(img_dict_list: list[dict]):
+    """
+        Saves all the images in the image dict.
+        Naming convention is based off of post_number+image+number
+        If the image can't be saved, save into a different json file with the according post number as well.
+        Returns a modified img_dict_list that contains the same things as image dict, with the addition of the path to the
+            actual images saved.
+    """
+    mod_img_dict_list = []
+    for img_dict in img_dict_list:
+        image_links = img_dict.get("img_link")
+        post_link = img_dict.get("post_link")
+        html_link_name = link.split("/")
+        for split_link in html_link_name:
+            if split_link.isnumeric():
+                html_link_name2 = split_link
+                break
+        for img in image_links:
+            save_image(img, )
     
 def main():
     # blog_link = "https://star-nomads.tumblr.com/archive"
@@ -201,6 +220,7 @@ def main():
     write_json_file("not_working_posts.json", not_working_posts)
     write_json_file("json_files.json", post_dicts)
 
+    # save the images connected with each post
     with open("json_files.json",'r') as f:
         post_dictionary = json.load(f)
     
